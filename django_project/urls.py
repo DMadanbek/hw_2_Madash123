@@ -23,6 +23,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.main_page_view),
     path('add_product/',views.add_product),
+    path('login/', views.login),
+    path('logout/', views.logout),
+    path('register/',views.register),
     path('products/<int:product_id>/', views.product_item_view)
 ]+ static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
 

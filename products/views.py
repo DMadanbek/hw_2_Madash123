@@ -1,7 +1,9 @@
+from django.contrib import auth
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.shortcuts import HttpResponse
 from .models import Products
-from products.forms import ProductForm
+from products.forms import ProductForm,RegisterForm
 
 def main_page_view(request):
     products = Products.objects.all()
@@ -26,7 +28,7 @@ def product_item_view(request, product_id):
     }
     return render(request, 'item.html', context=data)
 
-
+@login_required(login_url='/login/')
 def add_product(request):
     if request.method == 'GET':
 
@@ -40,3 +42,43 @@ def add_product(request):
         if form.is_valid():
             form.save()
             return redirect('/')
+
+
+from .forms import LoginForm
+
+def logout(request):
+    auth.logout(request)
+    return redirect('/login/')
+
+def login(request):
+    if request.method=='POST':
+        username = request.POST['username']
+        password =  request.POST['password']
+        user = auth.authenticate(username=username,password=password)
+        if user is not None:
+            auth.login(request,user)
+            return redirect('/')
+    data= {
+        'form':LoginForm
+    }
+    return render(request,'login.html',context= data)
+
+
+def register(request):
+    if request.method=='POST':
+        form = RegisterForm(data=request.POST)
+        if form.is_valid:
+            form.save()
+            return redirect('/login/')
+
+        else:
+            data = {
+                'form': form
+            }
+            return render(request,'register.html',context=data)
+    data={
+        'form':RegisterForm()
+    }
+    return render(request,'register.html',context=data)
+
+
